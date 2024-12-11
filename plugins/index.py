@@ -16,11 +16,11 @@ async def index_files(bot, query):
     _, ident, chat, lst_msg_id, skip = query.data.split("#")
     if ident == 'yes':
         msg = query.message
-        await msg.edit("Starting Indexing...")
+        await msg.edit("<b>Starting Indexing...</b>")
         try:
             chat = int(chat)
-        except:
-            chat = chat
+        except ValueError:
+            pass
         await index_files_to_db(int(lst_msg_id), chat, msg, bot, int(skip))
     elif ident == 'cancel':
         temp.CANCEL = True
