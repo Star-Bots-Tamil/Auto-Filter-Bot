@@ -129,6 +129,7 @@ def encode_file_id(s: bytes) -> str:
     return base64.urlsafe_b64encode(r).decode().rstrip("=")
 
 def unpack_new_file_id(new_file_id):
+    """Return file_id, file_ref"""
     decoded = FileId.decode(new_file_id)
     file_id = encode_file_id(
         pack(
@@ -139,4 +140,5 @@ def unpack_new_file_id(new_file_id):
             decoded.access_hash
         )
     )
-    return file_id
+    file_ref = encode_file_ref(decoded.file_reference)
+    return file_id, file_ref
