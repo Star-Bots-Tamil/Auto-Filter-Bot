@@ -36,7 +36,7 @@ async def send_for_index(bot, message):
     if message.text and message.text.startswith("https://t.me"):
         try:
             msg_link = msg.text.split("/")
-            last_msg_id = int(msg_link[-1])
+            lst_msg_id = int(msg_link[-1])
             chat_id = msg_link[-2]
             if chat_id.isnumeric():
                 chat_id = int(("-100" + chat_id))
@@ -44,7 +44,7 @@ async def send_for_index(bot, message):
             await message.reply('Invalid message link!')
             return
     elif msg.forward_from_chat and msg.forward_from_chat.type == enums.ChatType.CHANNEL:
-        last_msg_id = msg.forward_from_message_id
+        lst_msg_id = msg.forward_from_message_id
         chat_id = msg.forward_from_chat.username or msg.forward_from_chat.id
     else:
         await message.reply('This is not forwarded message or link.')
@@ -71,7 +71,7 @@ async def send_for_index(bot, message):
         InlineKeyboardButton('CLOSE', callback_data='index#cancel'),
     ]]
     reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply(f'Do you want to index {chat.title} channel?\nTotal Messages: <code>{last_msg_id}</code>', reply_markup=reply_markup)
+    await message.reply(f'Do you want to index {chat.title} channel?\nTotal Messages: <code>{lst_msg_id}</code>', reply_markup=reply_markup)
 
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
