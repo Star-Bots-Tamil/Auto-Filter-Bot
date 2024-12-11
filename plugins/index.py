@@ -59,7 +59,7 @@ async def send_for_index(bot, message):
         return await message.reply("I can only index channels.")
 
     # Ask for skip count
-    s = await message.reply("Send skip message number.")
+    s = await message.reply("Send the number of messages to skip.")
     skip_msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
     await s.delete()
     try:
@@ -67,17 +67,26 @@ async def send_for_index(bot, message):
     except:
         return await message.reply("Invalid number.")
 
-    # Confirmation buttons
-    buttons = [[
-        InlineKeyboardButton('YES', callback_data=f'index#accept#{chat_id}#{last_msg_id}#{skip}')
-    ], [
-        InlineKeyboardButton('CLOSE', callback_data='close_data'),
-    ]]
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply(
-        f'Do you want to index the "{chat.title}" channel?\nTotal Messages: <code>{last_msg_id}</code>',
-        reply_markup=reply_markup
+    # Confirmation text with details
+    confirmation_text = (
+        f'Do you want to index the "{chat.title}" channel?\n'
+        f'Total Messages: <code>{last_msg_id}</code>\n\n'
+        'Reply with 1 (yes) or 0 (no).'
     )
+    confirmation = await message.reply(confirmation_text)
+
+    # Wait for user's response
+    response = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
+    await confirmation.delete()
+
+    # Handle user response
+    if response.text.strip() in ['1', 'yes', 'y', 'true']:
+        await message.reply("Starting indexing process...")
+        await index_files_to_db(int(last_msg_id), chat_id, message, bot, skip)
+    elif response.text.strip() in ['0', 'no', 'n', 'false']:
+        await message.reply("Indexing canceled by user.")
+    else:
+        await message.reply("Invalid response. Please reply with 1 (yes) or 0 (no).")
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
     start_time = time.time()
