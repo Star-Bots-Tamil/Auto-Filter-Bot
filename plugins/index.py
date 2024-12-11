@@ -66,9 +66,9 @@ async def send_for_index(bot, message):
         return await message.reply("Number is invalid.")
 
     buttons = [[
-        InlineKeyboardButton('YES', callback_data=f'index#yes#{chat_id}#{last_msg_id}#{skip}')
+        InlineKeyboardButton('YES', callback_data=f'index#yes#{chat_id}#{lst_msg_id}#{skip}')
     ],[
-        InlineKeyboardButton('CLOSE', callback_data='close_data'),
+        InlineKeyboardButton('CLOSE', callback_data='index#cancel'),
     ]]
     reply_markup = InlineKeyboardMarkup(buttons)
     await message.reply(f'Do you want to index {chat.title} channel?\nTotal Messages: <code>{last_msg_id}</code>', reply_markup=reply_markup)
