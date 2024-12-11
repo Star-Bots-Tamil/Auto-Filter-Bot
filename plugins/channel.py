@@ -11,7 +11,7 @@ media_filter = filters.document | filters.video
 
 media_filter = filters.document | filters.video
 
-@Client.on_message(filters.chat(CHANNELS) & media_filter)
+@Client.on_message(filters.chat(INDEX_CHANNELS) & media_filter)
 async def media(bot, message):
     bot_id = bot.me.id
     media = getattr(message, message.media.value, None)
