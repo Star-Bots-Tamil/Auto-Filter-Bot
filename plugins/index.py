@@ -27,14 +27,13 @@ async def index_files(bot, query):
         await query.message.edit("Trying to cancel Indexing...")
 
 
-@Client.on_message(filters.command('indexf') & filters.private & filters.incoming & filters.user(ADMINS))
+@Client.on_message(filters.private & filters.incoming & filters.user(ADMINS))
 async def send_for_index(bot, message):
     if lock.locked():
-        return await message.reply('Wait until previous process complete.')
-    i = await message.reply("Forward last message or send last message link.")
-    msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    await i.delete()
-    if msg.text and msg.text.startswith("https://t.me"):
+        return await message.reply("Wait until the previous process completes.")
+
+    # Check for forwarded message or link
+    if message.text and message.text.startswith("https://t.me"):
         try:
             msg_link = msg.text.split("/")
             last_msg_id = int(msg_link[-1])
