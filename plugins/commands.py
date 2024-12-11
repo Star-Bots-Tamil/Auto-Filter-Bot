@@ -77,6 +77,13 @@ async def start(client, message):
         )
         return
 
+    if len(message.command) == 2 and message.command[1].startswith('getfile'):
+        searches = message.command[1].split("-", 1)[1] 
+        search = searches.replace('-',' ')
+        message.text = search 
+        await auto_filter(client, message) 
+        return
+
     mc = message.command[1]
 
     if mc.startswith('verify'):
