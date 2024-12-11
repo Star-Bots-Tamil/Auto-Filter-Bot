@@ -92,6 +92,7 @@ SHORTLINK_URL = environ.get("SHORTLINK_URL", "publicearn.in")
 SHORTLINK_API = environ.get("SHORTLINK_API", "6b30ad861a51b05f8dc26311c5b72b5038f2cdee")
 VERIFY_EXPIRE = int(environ.get('VERIFY_EXPIRE', 86400)) # Add time in seconds (1 Day)
 WELCOME_TEXT = environ.get("WELCOME_TEXT", script.WELCOME_TEXT)
+INDEX_EXTENSIONS = [extensions.lower() for extensions in environ.get('INDEX_EXTENSIONS', 'mp4 mkv').split()]
 PM_FILE_DELETE_TIME = int(environ.get('PM_FILE_DELETE_TIME', '3600'))
 
 # boolean settings
