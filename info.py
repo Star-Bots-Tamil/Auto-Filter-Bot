@@ -88,7 +88,7 @@ LANGUAGES = [language.lower() for language in environ.get('LANGUAGES', 'tamil hi
 QUALITY = [quality.lower() for quality in environ.get('QUALITY', '360p 480p 720p 1080p 2160p').split()]
 IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", script.IMDB_TEMPLATE)
 FILE_CAPTION = environ.get("FILE_CAPTION", script.FILE_CAPTION)
-SHORTLINK_URL = environ.get("SHORTLINK_URL", "publicearn.in")
+SHORTLINK_URL = environ.get("SHORTLINK_URL", "publicearn.com")
 SHORTLINK_API = environ.get("SHORTLINK_API", "6b30ad861a51b05f8dc26311c5b72b5038f2cdee")
 VERIFY_EXPIRE = int(environ.get('VERIFY_EXPIRE', 86400)) # Add time in seconds (1 Day)
 WELCOME_TEXT = environ.get("WELCOME_TEXT", script.WELCOME_TEXT)
@@ -98,7 +98,7 @@ PM_FILE_DELETE_TIME = int(environ.get('PM_FILE_DELETE_TIME', '3600'))
 # boolean settings
 IS_PM_SEARCH = is_enabled('IS_PM_SEARCH', False)
 IS_VERIFY = is_enabled('IS_VERIFY', True)
-IS_SEND_MOVIE_UPDATE = is_enabled('IS_SEND_MOVIE_UPDATE', False) # Don't Change It ( If You Want To Turn It On Then Turn It On By Commands) We Suggest You To Make It Turn Off If You Are Indexing Files First Time.
+IS_SEND_MOVIE_UPDATE = is_enabled('IS_SEND_MOVIE_UPDATE', True) # Don't Change It ( If You Want To Turn It On Then Turn It On By Commands) We Suggest You To Make It Turn Off If You Are Indexing Files First Time.
 AUTO_DELETE = is_enabled('AUTO_DELETE', True)
 WELCOME = is_enabled('WELCOME', False)
 PROTECT_CONTENT = is_enabled('PROTECT_CONTENT', False)
