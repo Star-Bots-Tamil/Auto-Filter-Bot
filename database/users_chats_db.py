@@ -39,7 +39,7 @@ class Database:
         self.grp = mydb.Groups
         self.users = mydb.uersz
         self.botcol = mydb["bot_id"]
-
+        self.movies_update_channel = mydb.movies_update_channel
     def new_user(self, id, name):
         return dict(
             id = id,
@@ -219,6 +219,20 @@ class Database:
         })
         return count
 
+    async def get_send_movie_update_status(self, bot_id):
+        bot = await self.botcol.find_one({'id': bot_id})
+        if bot and bot.get('movie_update_feature'):
+            return bot['movie_update_feature']
+        else:
+            return IS_SEND_MOVIE_UPDATE
+
+    async def update_send_movie_update_status(self, bot_id, enable):
+        bot = await self.botcol.find_one({'id': int(bot_id)})
+        if bot:
+            await self.botcol.update_one({'id': int(bot_id)}, {'$set': {'movie_update_feature': enable}})
+        else:
+            await self.botcol.insert_one({'id': int(bot_id), 'movie_update_feature': enable})  
+
     async def get_pm_search_status(self, bot_id):
         bot = await self.botcol.find_one({'id': bot_id})
         if bot and bot.get('bot_pm_search'):
@@ -233,6 +247,15 @@ class Database:
         else:
             await self.botcol.insert_one({'id': int(bot_id), 'bot_pm_search': enable})
 
+    async def movies_update_channel_id(self , id=None):
+        if id is None:
+            myLinks = await self.movies_update_channel.find_one({})
+            if myLinks is not None:
+                return myLinks.get("id")
+            else:
+                return None
+        return await self.movies_update_channel.update_one({} , {'$set': {'id': id}} , upsert=True)
+    
     async def get_all_chats_count(self):
         grp = await self.grp.find().to_list(None)
         return grp
