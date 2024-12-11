@@ -27,7 +27,7 @@ async def index_files(bot, query):
         await query.message.edit("Trying to cancel Indexing...")
 
 
-@Client.on_message(filters.private & filters.forwarded & filters.incoming & filters.user(ADMINS))
+@Client.on_message(filters.private & filters.incoming & filters.user(ADMINS))
 async def send_for_index(bot, message):
     if lock.locked():
         return await message.reply("Wait until the previous process completes.")
@@ -35,44 +35,52 @@ async def send_for_index(bot, message):
     # Check for forwarded message or link
     if message.text and message.text.startswith("https://t.me"):
         try:
-            msg_link = msg.text.split("/")
+            msg_link = message.text.split("/")
             lst_msg_id = int(msg_link[-1])
             chat_id = msg_link[-2]
             if chat_id.isnumeric():
-                chat_id = int(("-100" + chat_id))
+                chat_id = int("-100" + chat_id)
         except:
-            await message.reply('Invalid message link!')
+            await message.reply("Invalid message link!")
             return
-    elif msg.forward_from_chat and msg.forward_from_chat.type == enums.ChatType.CHANNEL:
-        lst_msg_id = msg.forward_from_message_id
-        chat_id = msg.forward_from_chat.username or msg.forward_from_chat.id
+    elif message.forward_from_chat and message.forward_from_chat.type == enums.ChatType.CHANNEL:
+        lst_msg_id = message.forward_from_message_id
+        chat_id = message.forward_from_chat.username or message.forward_from_chat.id
     else:
-        await message.reply('This is not forwarded message or link.')
+        await message.reply("This is not a forwarded message or link.")
         return
+
+    # Validate the chat
     try:
         chat = await bot.get_chat(chat_id)
     except Exception as e:
-        return await message.reply(f'Errors - {e}')
+        return await message.reply(f"Error: {e}")
 
     if chat.type != enums.ChatType.CHANNEL:
-        return await message.reply("I can index only channels.")
+        return await message.reply("I can only index channels.")
 
-    s = await message.reply("Send skip message number.")
-    msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    await s.delete()
+    # Request skip count from the user
+    skip_request = await message.reply("Send the number of messages to skip.")
+    skip_msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
+    await skip_request.delete()
     try:
-        skip = int(msg.text)
-    except:
-        return await message.reply("Number is invalid.")
+        skip = int(skip_msg.text)
+    except ValueError:
+        return await message.reply("Invalid number.")
 
+    # Create buttons for confirmation
     buttons = [[
-        InlineKeyboardButton('YES', callback_data=f'index#yes#{chat_id}#{lst_msg_id}#{skip}')
-    ],[
-        InlineKeyboardButton('CLOSE', callback_data='index#cancel'),
+        InlineKeyboardButton("YES", callback_data=f"index#yes#{chat_id}#{lst_msg_id}#{skip}"),
+        InlineKeyboardButton("CLOSE", callback_data="index#cancel"),
     ]]
     reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply(f'Do you want to index {chat.title} channel?\nTotal Messages: <code>{lst_msg_id}</code>', reply_markup=reply_markup)
 
+    # Send confirmation message
+    await message.reply(
+        f'Do you want to index the "{chat.title}" channel?\n'
+        f'Total Messages: <code>{lst_msg_id}</code>',
+        reply_markup=reply_markup
+    )
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
     start_time = time.time()
