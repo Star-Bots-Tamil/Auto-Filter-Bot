@@ -1,9 +1,12 @@
-FROM python:3.11
+FROM python:3.10.8-slim-buster
 
-WORKDIR /Auto-Filter-Bot
+RUN apt update && apt upgrade -y
+RUN apt install git -y
+COPY requirements.txt /requirements.txt
 
-COPY . /Auto-Filter-Bot
-
-RUN pip install -r requirements.txt
-
+RUN cd /
+RUN pip3 install -U pip && pip3 install -U -r requirements.txt
+RUN mkdir /VJ-FILTER-BOT
+WORKDIR /VJ-FILTER-BOT
+COPY . /VJ-FILTER-BOT
 CMD ["python", "bot.py"]
