@@ -23,6 +23,8 @@ async def pm_search(client, message):
         InlineKeyboardButton("🗂 ᴄʟɪᴄᴋ ʜᴇʀᴇ 🗂", url=FILMS_LINK)
     ]]
     reply_markup=InlineKeyboardMarkup(btn)
+    if str(message.text).startswith('/'):
+        return
     if await db.get_pm_search_status(bot_id):
         s = await message.reply(f"<b><i>⚠️ `{message.text}` searching...</i></b>", quote=True)
         if 'hindi' in message.text.lower() or 'tamil' in message.text.lower() or 'telugu' in message.text.lower() or 'malayalam' in message.text.lower() or 'kannada' in message.text.lower() or 'english' in message.text.lower() or 'gujarati' in message.text.lower(): 
