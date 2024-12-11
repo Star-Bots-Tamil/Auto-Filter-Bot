@@ -27,7 +27,7 @@ async def index_files(bot, query):
         await query.message.edit("Trying to cancel Indexing...")
 
 
-@Client.on_message(filters.private & filters.incoming & filters.user(ADMINS))
+@Client.on_message(filters.private & filters.forwarded & filters.incoming & filters.user(ADMINS))
 async def send_for_index(bot, message):
     if lock.locked():
         return await message.reply("Wait until the previous process completes.")
