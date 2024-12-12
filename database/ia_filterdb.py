@@ -13,6 +13,20 @@ client = AsyncIOMotorClient(DATABASE_URL)
 db = client[DATABASE_NAME]
 instance = Instance.from_db(db)
 
+replacements = [
+    (r"\bAuds\b", "Audios"),
+    (r"\bAud\b", "Audio"),
+    (r"\bOrg\b", "Original"),
+    (r"\bTam\b", "Tamil"),
+    (r"\bTel\b", "Telugu"),
+    (r"\bHin\b", "Hindi"),
+    (r"\bEng\b", "English"),
+    (r"\bMal\b", "Malayalam"),
+    (r"\bKan\b", "Kannada"),
+    (r"\bKor\b", "Korean"),
+    (r"\bChi\b", "Chinese"),
+]
+
 @instance.register
 class Media(Document):
     file_id = fields.StrField(attribute='_id')
@@ -28,12 +42,13 @@ async def save_file(media):
     """Save file in database"""
 
     # TODO: Find better way to get same file_id for same media to avoid duplicates
-    file_id = unpack_new_file_id(media.file_id)
-    file_name = re.sub(r"@\w+|(_|\-|\.|\+)", " ", str(media.file_name))
-    file_caption = re.sub(r"@\w+|(_|\-|\.|\+)", " ", str(media.caption))
+    file_id, file_ref = unpack_new_file_id(media.file_id)
+    file_name = re.sub(r"@[\w-]+|(_)", " ", str(media.file_name))
+    file_caption = str(media.caption)
     try:
         file = Media(
             file_id=file_id,
+            file_ref=file_ref,
             file_name=file_name,
             file_size=media.file_size,
             caption=file_caption
