@@ -8,7 +8,7 @@ import datetime
 from Script import script
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from database.ia_filterdb import Media, get_file_details, delete_files
+from database.ia_filterdb import Media, get_file_details, delete_files, unpack_new_file_id
 from database.users_chats_db import db
 from info import INDEX_CHANNELS, ADMINS, IS_VERIFY, VERIFY_TUTORIAL, VERIFY_EXPIRE, SHORTLINK_API, SHORTLINK_URL, DELETE_TIME, SUPPORT_LINK, UPDATES_LINK, LOG_CHANNEL, PICS, IS_STREAM, PAYMENT_QR, OWNER_USERNAME, REACTIONS, PM_FILE_DELETE_TIME, OWNER_UPI_ID
 from utils import get_settings, get_size, is_subscribed, is_check_admin, get_shortlink, get_verify_status, update_verify_status, save_group_settings, temp, get_readable_time, get_wish, get_seconds
@@ -432,27 +432,35 @@ async def save_welcome(client, message):
     await save_group_settings(grp_id, 'welcome_text', welcome)
     await message.reply_text(f"Successfully changed welcome for {title} to\n\n{welcome}")
         
-@Client.on_message(filters.command('delete'))
-async def delete_file(bot, message):
-    user_id = message.from_user.id
-    if user_id not in ADMINS:
-        await message.delete()
-        return
-    try:
-        query = message.text.split(" ", 1)[1]
-    except:
-        return await message.reply_text("Command Incomplete!\nUsage: /delete query")
-    msg = await message.reply_text('Searching...')
-    total, files = await delete_files(query)
-    if int(total) == 0:
-        return await msg.edit('Not have files in your query')
-    btn = [[
-        InlineKeyboardButton("YES", callback_data=f"delete_{query}")
-    ],[
-        InlineKeyboardButton("CLOSE", callback_data="close_data")
-    ]]
-    await msg.edit(f"Total {total} files found in your query {query}.\n\nDo you want to delete?", reply_markup=InlineKeyboardMarkup(btn))
- 
+@Client.on_message(filters.command('delete') & filters.user(ADMINS))
+async def delete(bot, message):
+    reply = message.reply_to_message
+    if reply and reply.media: msg = await message.reply("Processing...⏳", quote=True)
+    else: return await message.reply('Reply to file with /delete which you want to delete', quote=True)
+    for file_type in ("document", "video", "audio"):
+        media = getattr(reply, file_type, None)
+        if media is not None: break
+    else: return await msg.edit('This Is Not Supported File Format')
+    file_id, file_ref = unpack_new_file_id(media.file_id)
+    result = await Media.collection.delete_one({'_id': file_id})
+    if result.deleted_count: await msg.edit('File Is Successfully Deleted From Database')
+    else:
+        file_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
+        result = await Media.collection.delete_many({
+            'file_name': file_name,
+            'file_size': media.file_size,
+            'mime_type': media.mime_type
+            })
+        if result.deleted_count: await msg.edit('File Is Successfully Deleted From Database')
+        else:
+            result = await Media.collection.delete_many({
+                'file_name': media.file_name,
+                'file_size': media.file_size,
+                'mime_type': media.mime_type
+            })
+            if result.deleted_count: await msg.edit('File Is Successfully Deleted From Database')
+            else: await msg.edit('File Not Found In Database')
+
 @Client.on_message(filters.command('delete_all'))
 async def delete_all_index(bot, message):
     user_id = message.from_user.id
