@@ -45,6 +45,9 @@ async def save_file(media):
     file_id, file_ref = unpack_new_file_id(media.file_id)
     file_name = re.sub(r"@[\w-]+|(_)", " ", str(media.file_name))
     file_caption = str(media.caption)
+    for pattern, replacement in replacements:
+        file_name = re.sub(pattern, replacement, file_name)
+        file_caption = re.sub(pattern, replacement, file_caption)
     try:
         file = Media(
             file_id=file_id,
