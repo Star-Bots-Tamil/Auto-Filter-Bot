@@ -51,7 +51,7 @@ async def index_files(bot, query):
     await index_files_to_db(int(lst_msg_id), chat, msg, bot)
 
 
-@Client.on_message(filters.private & filters.incoming & filters.forwarded)
+@Client.on_message(filters.private & filters.incoming | filters.forwarded)
 async def send_for_index(bot, message):
     if vj.forward_from_chat and vj.forward_from_chat.type == enums.ChatType.CHANNEL:
         last_msg_id = vj.forward_from_message_id
