@@ -40,6 +40,8 @@ class Database:
         self.users = mydb.uersz
         self.botcol = mydb["bot_id"]
         self.movies_update_channel = mydb.movies_update_channel
+        self.channel_col = mydb.channel_data
+    
     def new_user(self, id, name):
         return dict(
             id = id,
@@ -255,6 +257,29 @@ class Database:
             else:
                 return None
         return await self.movies_update_channel.update_one({} , {'$set': {'id': id}} , upsert=True)
+
+    async def set_channel(self, command_type, destination_channel_ids, original_text, replace_text, my_link, web_link, my_username):
+        channel_data = {
+            "command_type": command_type,
+            "destination_channel_ids": destination_channel_ids,
+            "original_text": original_text,
+            "replace_text": replace_text,
+            "my_link": my_link,
+            "web_link": web_link,
+            "my_username": my_username
+        }
+        
+        # Update or insert the data for the given command_type
+        await self.channel_col.update_one(
+            {"command_type": command_type},
+            {"$set": channel_data},
+            upsert=True  # If the command_type doesn't exist, create a new entry
+        )
+
+    async def get_channel(self, command_type):
+        return await self.channel_col.find_one({
+            "command_type": command_type
+        })
     
     async def get_all_chats_count(self):
         grp = await self.grp.find().to_list(None)
