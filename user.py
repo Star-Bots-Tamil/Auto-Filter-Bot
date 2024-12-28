@@ -12,8 +12,8 @@ from info import SESSION, USER_STRING_SESSION, API_ID, API_HASH, BOT_TOKEN, ADMI
 async def main():
     """Main function to start the user bot and bot."""
 
-    user_bot = Client('User-bot', API_ID, API_HASH, session_string=USER_STRING_SESSION, in_memory=True)
-    bot = Client(name='Auto_Filter_Bot', API_ID, API_HASH, bot_token=BOT_TOKEN)
+    user_bot = Client('User-Bot', API_ID, API_HASH, session_string=USER_STRING_SESSION, in_memory=True)
+    bot = Client(name='Auto-Filter-Bot', API_ID, API_HASH, bot_token=BOT_TOKEN)
 
     # Start both bots
     await user_bot.start()
