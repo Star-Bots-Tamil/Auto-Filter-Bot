@@ -13,7 +13,7 @@ async def main():
     """Main function to start the user bot and bot."""
 
     user_bot = Client('User-bot', API_ID, API_HASH, session_string=USER_STRING_SESSION, in_memory=True)
-    bot = Client(SESSION, API_ID, API_HASH, bot_token=BOT_TOKEN)
+    bot = Client(name='Auto_Filter_Bot', API_ID, API_HASH, bot_token=BOT_TOKEN)
 
     # Start both bots
     await user_bot.start()
