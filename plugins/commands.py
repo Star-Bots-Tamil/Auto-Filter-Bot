@@ -9,18 +9,18 @@ from datetime import datetime as dt
 from Script import script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired, FloodWait
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup , ForceReply, ReplyKeyboardMarkup
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup , ForceReply, ReplyKeyboardMarkup, Message, CallbackQuery
 from database.ia_filterdb import Media, get_file_details, get_bad_files, unpack_new_file_id
 from database.users_chats_db import db
 from database.config_db import mdb
 from database.topdb import JsTopDB
 from database.jsreferdb import referdb
 from plugins.pm_filter import auto_filter
-from utils import formate_file_name,  get_settings, save_group_settings, is_req_subscribed, get_size, get_shortlink, is_check_admin, get_status, temp, get_readable_time, save_default_settings
+from utils import formate_file_name,  get_settings, save_group_settings, is_req_subscribed, get_size, get_shortlink, is_check_admin, get_status, temp, get_readable_time, save_default_settings, get_file_id
 import re
 import base64
 from info import *
-import traceback
+from telegraph import upload_file
 logger = logging.getLogger(__name__)
 movie_series_db = JsTopDB(DATABASE_URI)
 verification_ids = {}
@@ -850,3 +850,39 @@ async def remove_fsub(client, message):
     await save_group_settings(grp_id, 'fsub', None)
     await message.reply_text("<b>Successfully removed your force channel id...</b>")
 
+@Client.on_message(filters.command("telegraph") & filters.private)
+async def telegraph_upload(bot, update):
+    # Service Stopped
+    return await update.reply("🥲 This service is stopped due to https://t.me/DP_BOTZ")
+    
+    replied = update.reply_to_message
+    if not replied:
+        return await update.reply_text("Rᴇᴘʟʏ Tᴏ A Pʜᴏᴛᴏ Oʀ Vɪᴅᴇᴏ Uɴᴅᴇʀ 5ᴍʙ")
+    file_info = get_file_id(replied)
+    if not file_info:
+        return await update.reply_text("Not Supported!")
+    text = await update.reply_text(text="<b>Downloading To My Server ...</b>", disable_web_page_preview=True)   
+    media = await update.reply_to_message.download()   
+    await text.edit_text(text="<b>Downloading Completed. Now I am Uploading to telegra.ph Link ...</b>", disable_web_page_preview=True)                                            
+    try:
+        response = upload_file(media)
+    except Exception as error:
+        print(error)
+        await text.edit_text(text=f"Error :- {error}", disable_web_page_preview=True)       
+        return    
+    try:
+        os.remove(media)
+    except Exception as error:
+        print(error)
+        return    
+    await text.edit_text(
+        text=f"<b>Link :-</b>\n\n<code>https://graph.org{response[0]}</code>",
+        disable_web_page_preview=True,
+        reply_markup=InlineKeyboardMarkup( [[
+            InlineKeyboardButton(text="Open Link", url=f"https://graph.org{response[0]}"),
+            InlineKeyboardButton(text="Share Link", url=f"https://telegram.me/share/url?url=https://graph.org{response[0]}")
+            ],[
+            InlineKeyboardButton(text="✗ Close ✗", callback_data="close")
+            ]])
+        )
+    
