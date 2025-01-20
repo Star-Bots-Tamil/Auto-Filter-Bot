@@ -12,3 +12,7 @@ aiofiles
 telegraph
 speedtest-cli
 uvloop
+telegraph
+youtube-search-python
+youtube-search
+yt-dlp==2023.2.17
