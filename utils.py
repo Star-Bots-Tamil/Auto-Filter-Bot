@@ -171,6 +171,14 @@ async def groups_broadcast_messages(chat_id, message, pin):
         await db.delete_chat(chat_id)
         return "Error"
 
+def get_file_id(msg: Message):
+    if not msg.media: return None
+    for message_type in ("photo", "animation", "audio", "document", "video", "video_note", "voice", "sticker"):
+        obj = getattr(msg, message_type)
+        if obj:
+            setattr(obj, "message_type", message_type)
+            return obj
+
 async def get_settings(group_id):
     settings = temp.SETTINGS.get(group_id)
     if not settings:
